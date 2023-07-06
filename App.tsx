@@ -28,8 +28,6 @@ const App = () => {
   const [title, setTaskname] = useState("")
   const [description, setExplain] = useState("")
   const [todolist, setTodolist] = useState<Array<DataItem>>([])
-  console.log(todolist);
-
 
   let today = new Date();
   let date = today.getDate() + "." + (today.getMonth() + 1) + "." + today.getFullYear()+"." + today.getHours()+"." + today.getMinutes() +"." + today.getSeconds() ;
@@ -48,9 +46,9 @@ const App = () => {
   }, [])
 
   const createRecord = () => {
-
-    if (!title == null && !description == null) {
-      Alert.alert("Boş olamaz")
+    console.log(title);
+    if (title == "" || title == null) {
+      Alert.alert("bir görev ekleyin")      
     }
     else{
       db.transaction((tx) => {
@@ -140,12 +138,10 @@ const App = () => {
   }
 
   const completedItem = (item:DataItem)=> {
-    console.log(item.id,item.isCompleted,"burası çalışor");
-    
     db.transaction((tx) => {
       tx.executeSql(
         'UPDATE toDo SET isCompleted = CASE WHEN isCompleted = 1 THEN 0 ELSE 1 END WHERE id =?', [item.id], (tx, res) => {
-        console.log(res.rowsAffected)
+        //console.log(res.rowsAffected)
         //console.log("tx",tx)
         //console.log("res",res)
         readData()
@@ -183,20 +179,20 @@ const App = () => {
           <Button
             onPress={createRecord}
             title="ekle"
-            color="green"
+            color="#7DBC8E"
           />
           </View>
 
           <View style={styles.butongrup}>
-            <Button
+            {/* <Button
               onPress={readData}
               title="yenile"
-              color="burlywood"
-            />
+              color="#725368"
+            /> */}
             <Button
               onPress={deleteAlldata}
               title="tümünü sil"
-              color="#F29999"
+              color="#DA727E"
             />
           </View>
         </View>
@@ -208,15 +204,14 @@ const App = () => {
           data={todolist}
           renderItem={({ item }) => (
             <TouchableHighlight onPress={()=> completedItem(item)}>
-              <View style={styles.item}>
-                <Text style={[styles.fontcolor,styles.titleCard]}>{item.title}</Text>
+              <View style={item.isCompleted ===0 ? styles.item:styles.completed}>
+                <Text style={item.isCompleted ===0 ? [styles.fontcolor,styles.titleCard]:styles.completedTitle}>{item.title}</Text>
                 <Text style={styles.fontcolor}>{item.description}</Text>
-                <Text style={styles.fontcolor}>eklenme tarihi {item.startDate.toString()}</Text>
-                <Text style={styles.fontcolor}>tamamlanmış mı burada yazacak {item.isCompleted}</Text>
+                <Text style={styles.fontcolor}>{item.startDate.toString()}</Text>
               </View>
             </TouchableHighlight>
           )}
-        ListEmptyComponent={<Text style={styles.emptyText}>Listede henüz bişey yok </Text>}
+        ListEmptyComponent={<Text style={styles.emptyText}>Listede henüz görev yok </Text>}
         />
       </ScrollView>
     </View>
@@ -248,8 +243,7 @@ const styles = StyleSheet.create({
     marginRight:90
   },
   butongrup: {
-    borderRadius: 20,
-    marginHorizontal:20,
+    marginHorizontal:135,
     marginTop:10,
     padding: 10,
     flexDirection: "row",
@@ -281,11 +275,26 @@ const styles = StyleSheet.create({
   emptyText:{
     margin:20,
     padding:10,
-    backgroundColor:"#124100",
     color:"white",
     fontSize:20,
     textAlign:"center",
-    height:150
+  },
+  completed:{
+    color:"white",
+    backgroundColor:"#7DBC8E",
+    padding:10,
+    borderRadius:15,
+    margin:10,
+    textDecorationLine:"underline",
+
+  },
+  completedTitle:{
+    textDecorationLine:"underline",
+    fontSize:20,
+    textAlign:"center",
+    color:"gray",
+    fontStyle:"italic",
+    fontWeight:"bold"
   }
 
 })
